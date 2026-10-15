@@ -45,6 +45,9 @@ pub fn run() {
             Some(vec![]),
         ))
         .setup(|app| {
+            // Regular app (not LSUIElement) — avoids macOS 26 tray/libdispatch crashes while keeping menu bar icon.
+            app.set_activation_policy(tauri::ActivationPolicy::Regular);
+
             let handle = app.handle().clone();
 
             // Initialize application state
