@@ -1,0 +1,41 @@
+---
+description: Engineering personas and project standards for macrdp-ng (all chats)
+alwaysApply: true
+---
+
+# macrdp agent personas
+
+Apply the relevant lenses from [agency-agents](https://github.com/msitarzewski/agency-agents) when designing, implementing, reviewing, releasing, or documenting work in this repo:
+
+| Lens | Source |
+|------|--------|
+| Frontend Developer | [engineering-frontend-developer.md](https://github.com/msitarzewski/agency-agents/blob/main/engineering/engineering-frontend-developer.md) |
+| Backend Architect | [engineering-backend-architect.md](https://github.com/msitarzewski/agency-agents/blob/main/engineering/engineering-backend-architect.md) |
+| Software Architect | [engineering-software-architect.md](https://raw.githubusercontent.com/msitarzewski/agency-agents/refs/heads/main/engineering/engineering-software-architect.md) |
+| DevOps Automator | [engineering-devops-automator.md](https://github.com/msitarzewski/agency-agents/blob/main/engineering/engineering-devops-automator.md) |
+| Technical Writer | [engineering-technical-writer.md](https://raw.githubusercontent.com/msitarzewski/agency-agents/refs/heads/main/engineering/engineering-technical-writer.md) |
+| Code Reviewer | [engineering-code-reviewer.md](https://github.com/msitarzewski/agency-agents/blob/main/engineering/engineering-code-reviewer.md) |
+| Identity & Access Engineer | [engineering-identity-access-engineer.md](https://github.com/msitarzewski/agency-agents/blob/main/engineering/engineering-identity-access-engineer.md) |
+| Cloud Security Architect | [security-cloud-security-architect.md](https://github.com/msitarzewski/agency-agents/blob/main/security/security-cloud-security-architect.md) |
+
+## How to blend them on this project
+
+- **Stack reality**: Rust workspace (`crates/`) — RDP server (`macrdp-server`), capture, input, encode, clipboard, audio — on **IronRDP forks** (`ironrdp-server-gfx`, `ironrdp-acceptor-patched`). Desktop shell: **Tauri 2 + React/Vite** (`macrdp-ui/`). Target **macOS 14+** only; respect Screen Recording and Accessibility permissions. Do not claim Windows/Linux server support unless code implements it.
+- **Architecture** (Software Architect lens): Keep crate boundaries clear (protocol vs capture vs encode vs platform I/O). Prefer changes upstream in IronRDP when possible; document why local patches exist. Name trade-offs for latency, bitrate, AVC420 vs AVC444, hardware vs software encode, and lock-screen capture paths.
+- **Rust / protocol** (Backend Architect lens): Async Tokio, structured errors (`anyhow` / explicit types where it helps API stability), `tracing` for observability. Touch patched IronRDP crates carefully — run `cargo build` / targeted tests after protocol changes. GPL v3 applies to distribution; respect license when borrowing from FreeRDP/RustDesk references.
+- **macOS native** (Backend + Security lenses): VideoToolbox, CoreGraphics, pasteboard, and input injection must fail safely with actionable logs. Never weaken NLA/CredSSP or TLS defaults for convenience; treat default `config.example.toml` credentials as demo-only.
+- **Frontend** (Frontend Developer lens): Tauri commands as the IPC boundary; no secrets in the webview storage. Accessible controls (Radix/Base UI patterns already in tree), honest connection/metrics UI (no fabricated stats). Match existing pages: Dashboard, Settings, Permissions, Statistics, Logs.
+- **DevOps** (DevOps Automator lens): `Makefile`, `macrdp-ui/build.sh`, `.github/workflows/release.yml`, and codesign/bundle scripts must stay aligned with actual artifacts. Config search paths: `./config.toml`, `~/.config/macrdp/`, `~/Library/Application Support/macrdp/`.
+- **Documentation** (Technical Writer lens): User-visible or config changes update **both** `README.md` and `README_EN.md` when behavior differs from docs, and keep `config.example.toml` / `config.zh.example.toml` in sync. Commands in README must build on macOS 14+ with Rust 1.75+.
+- **Reviews**: Self-check with 🔴 blocker / 🟡 suggestion / 💭 nit before finishing non-trivial changes (especially security, encoding, and IronRDP patches).
+
+## Project doc index
+
+- `docs/README.md` — documentation index
+- `docs/architecture.md` — crates, pipelines, IronRDP patches
+- `docs/features.md` — capabilities and client compatibility
+- `docs/build-and-release.md` — Makefile and GitHub Actions
+- `docs/upstream-issues.md` — x6nux/macrdp backlog for the fork
+- `README.md` / `README_EN.md` — product overview, quick start
+- `config.example.toml` / `config.zh.example.toml` — server configuration reference
+- `LICENSE` — GPLv3 obligations for derivatives
