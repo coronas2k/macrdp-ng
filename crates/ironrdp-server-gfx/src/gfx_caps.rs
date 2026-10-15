@@ -12,7 +12,7 @@ pub(crate) fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
         Ok(pdu) => Ok(pdu),
         Err(strict_err) => {
             if !is_capabilities_advertise(data) {
-                return Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err.to_string()));
+                return Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err));
             }
             match parse_capabilities_advertise(data) {
                 Ok((sets, skipped)) => {
@@ -28,7 +28,7 @@ pub(crate) fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
                         error = %e,
                         "GFX: strict caps decode failed; lenient parse also failed"
                     );
-                    Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err.to_string()))
+                    Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err))
                 }
             }
         }
