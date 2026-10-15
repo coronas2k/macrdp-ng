@@ -228,6 +228,9 @@ impl UiConfig {
             bitrate_mbps: Some(self.bitrate_mbps),
             audio: macrdp_core::AudioConfig::default(),
             clipboard: macrdp_core::ClipboardConfig::default(),
+            pointer_invert_y: None,
+            scroll_wheel_delta: None,
+            scroll_lines_per_notch: None,
         }
     }
 }
