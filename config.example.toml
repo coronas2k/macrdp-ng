@@ -92,3 +92,14 @@ log_level = "info"
 # Idle timeout in seconds (disconnect after no input)
 # Default: 1800 (30 minutes)
 idle_timeout_secs = 1800
+
+# ─── Pointer / scroll (optional) ───────────────────────────────────────────────
+
+# Invert RDP Y when mapping to macOS (try if MS Remote Desktop mouse Y is flipped)
+# pointer_invert_y = false
+
+# RDP wheel units per notch (default 120)
+# scroll_wheel_delta = 120
+
+# macOS scroll lines per notch after scaling (default 1)
+# scroll_lines_per_notch = 1

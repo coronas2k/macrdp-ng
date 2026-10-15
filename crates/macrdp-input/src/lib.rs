@@ -6,7 +6,7 @@ pub mod mouse;
 
 pub use keyboard::KeyboardInjector;
 pub use keymap::scancode_to_keycode;
-pub use mouse::{MouseButton, MouseInjector};
+pub use mouse::{DEFAULT_WHEEL_DELTA, MouseButton, MouseInjector};
 
 // FFI for Accessibility APIs
 extern "C" {

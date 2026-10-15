@@ -161,6 +161,7 @@ struct ServerThreadArgs {
     encoder_pref: macrdp_encode::EncoderPreference,
     mode_444: bool,
     coord_mapper: crate::handler::MouseCoordMapper,
+    input_opts: crate::handler::InputOptions,
     gfx_state: Arc<Mutex<GfxState>>,
     shutdown_notify: Arc<Notify>,
     handler: Arc<dyn ServerEventHandler>,
@@ -271,7 +272,14 @@ pub async fn start_server(
     let (width, height) = resolve_resolution(res_mode, width, height);
 
     // Mouse coordinate mapping: mac = rdp × cg_logical ÷ rdp_desktop
-    let coord_mapper = crate::handler::MouseCoordMapper::new(cg_w, cg_h, width, height);
+    let input_opts = config.input_options();
+    let coord_mapper = crate::handler::MouseCoordMapper::new(
+        cg_w,
+        cg_h,
+        width,
+        height,
+        input_opts.pointer_invert_y,
+    );
 
     // GFX state (shared between server thread and metrics task)
     let gfx_state = Arc::new(Mutex::new(GfxState::new(width, height, mode_444)));
@@ -297,6 +305,7 @@ pub async fn start_server(
         encoder_pref,
         mode_444,
         coord_mapper,
+        input_opts,
         gfx_state: Arc::clone(&gfx_state),
         shutdown_notify: Arc::clone(&shutdown_notify),
         handler: Arc::clone(&handler),
@@ -421,7 +430,8 @@ fn run_server_thread(args: ServerThreadArgs) {
         };
 
         // Create input handler (clone coord_mapper — shared with display for resize sync)
-        let input_handler = MacInputHandler::new(args.coord_mapper.clone());
+        let input_handler =
+            MacInputHandler::new(args.coord_mapper.clone(), args.input_opts.clone());
 
         // Audio setup — shared sender slot, recreated per connection by AudioFactory
         let shared_audio_tx = if args.config.audio.enabled {

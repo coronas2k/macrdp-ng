@@ -77,6 +77,12 @@ pub struct ServerConfig {
     /// Clipboard synchronization configuration
     #[serde(default)]
     pub clipboard: ClipboardConfig,
+    /// Invert RDP Y axis when mapping to CGEvent coordinates (some macOS clients)
+    pub pointer_invert_y: Option<bool>,
+    /// RDP wheel delta per notch (default 120)
+    pub scroll_wheel_delta: Option<u32>,
+    /// macOS scroll lines per wheel notch after scaling
+    pub scroll_lines_per_notch: Option<u32>,
 }
 
 impl Default for ServerConfig {
@@ -100,6 +106,23 @@ impl Default for ServerConfig {
             bitrate_mbps: None,
             audio: AudioConfig::default(),
             clipboard: ClipboardConfig::default(),
+            pointer_invert_y: None,
+            scroll_wheel_delta: None,
+            scroll_lines_per_notch: None,
+        }
+    }
+}
+
+impl ServerConfig {
+    pub fn input_options(&self) -> crate::handler::InputOptions {
+        use macrdp_input::DEFAULT_WHEEL_DELTA;
+        crate::handler::InputOptions {
+            wheel_delta: self
+                .scroll_wheel_delta
+                .map(|v| v as i32)
+                .unwrap_or(DEFAULT_WHEEL_DELTA),
+            scroll_lines_per_notch: self.scroll_lines_per_notch.unwrap_or(1) as i32,
+            pointer_invert_y: self.pointer_invert_y.unwrap_or(false),
         }
     }
 }

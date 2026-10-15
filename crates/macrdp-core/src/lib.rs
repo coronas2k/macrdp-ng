@@ -12,6 +12,7 @@ pub mod server;
 pub mod tls;
 
 pub use callbacks::*;
+pub use handler::{InputOptions, MacInputHandler, MouseCoordMapper};
 pub use config::{config_dir, AudioConfig, ClipboardConfig, ServerConfig};
 pub use log_bridge::{LogBridgeLayer, init_log_file, log_file_path};
 pub use server::{start_server, resolve_resolution, ServerHandle};

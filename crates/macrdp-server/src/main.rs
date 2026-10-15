@@ -140,7 +140,14 @@ async fn main() -> Result<()> {
     // Completely independent of capture/encode resolution.
     // Updated by MacDisplay::request_resize() when the client negotiates a
     // different resolution.
-    let coord_mapper = handler::MouseCoordMapper::new(cg_w, cg_h, width, height);
+    let input_opts = config.input_options();
+    let coord_mapper = handler::MouseCoordMapper::new(
+        cg_w,
+        cg_h,
+        width,
+        height,
+        input_opts.pointer_invert_y,
+    );
     tracing::info!(
         rdp_w = width, rdp_h = height,
         cg_logical_w = cg_w, cg_logical_h = cg_h,
@@ -152,7 +159,7 @@ async fn main() -> Result<()> {
     let gfx_state = Arc::new(Mutex::new(GfxState::new(width, height, mode_444)));
 
     // Create input handler with coordinate mapper
-    let input_handler = MacInputHandler::new(coord_mapper.clone());
+    let input_handler = MacInputHandler::new(coord_mapper.clone(), input_opts);
 
     // Audio setup — shared sender slot, recreated per connection by AudioFactory
     let shared_audio_tx = if config.audio.enabled {
