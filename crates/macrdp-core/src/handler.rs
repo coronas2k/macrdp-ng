@@ -198,13 +198,18 @@ impl RdpServerInputHandler for MacInputHandler {
             }
             MouseEvent::VerticalScroll { value } => m.scroll_vertical(value, wd, lpn),
             MouseEvent::Scroll { x, y } => {
-                if y != 0 {
-                    m.scroll_vertical(y as i16, wd, lpn)?;
+                let v = if y != 0 {
+                    m.scroll_vertical(y as i16, wd, lpn)
+                } else {
+                    Ok(())
+                };
+                if v.is_err() {
+                    v
+                } else if x != 0 {
+                    m.scroll_horizontal(x, wd, lpn)
+                } else {
+                    Ok(())
                 }
-                if x != 0 {
-                    m.scroll_horizontal(x, wd, lpn)?;
-                }
-                Ok(())
             }
             MouseEvent::RelMove { x, y } => {
                 let nx = (self.last_mouse_x as i32 + x).clamp(0, 65535) as u16;
