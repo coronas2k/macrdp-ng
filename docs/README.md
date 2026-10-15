@@ -11,5 +11,6 @@ Engineering documentation for [macrdp-ng](https://github.com/coronas2k/macrdp-ng
 | [build-and-release.md](./build-and-release.md) | Makefile, local release, GitHub Actions |
 | [desktop-ui.md](./desktop-ui.md) | Tauri app, IPC commands, pages |
 | [upstream-issues.md](./upstream-issues.md) | Open issues on x6nux/macrdp and fork implications |
+| [improvement-blueprint.md](./improvement-blueprint.md) | Fork backlog and wave status |
 
 Product quick start remains in [README_EN.md](../README_EN.md) and [README.md](../README.md).
