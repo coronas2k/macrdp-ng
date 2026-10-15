@@ -144,13 +144,13 @@ impl RdpServerInputHandler for MacInputHandler {
     }
 
     fn mouse(&mut self, event: MouseEvent) {
-        let Some(m) = &self.mouse else { return };
         let wd = self.input_opts.wheel_delta;
         let lpn = self.input_opts.scroll_lines_per_notch;
 
         let result = match event {
             MouseEvent::Move { x, y } => {
                 let (mx, my) = self.map_pointer(x, y);
+                let Some(m) = self.mouse.as_ref() else { return };
                 if self.left_down {
                     m.drag_to(MouseButton::Left, mx, my)
                 } else if self.right_down {
@@ -161,6 +161,7 @@ impl RdpServerInputHandler for MacInputHandler {
             }
             MouseEvent::LeftPressed => {
                 self.left_down = true;
+                let Some(m) = self.mouse.as_ref() else { return };
                 let (mx, my) = (self.last_mouse_x, self.last_mouse_y);
                 let now = Instant::now();
                 let click_count = if let Some((t, px, py)) = self.last_left_press {
@@ -180,24 +181,33 @@ impl RdpServerInputHandler for MacInputHandler {
             }
             MouseEvent::LeftReleased => {
                 self.left_down = false;
+                let Some(m) = self.mouse.as_ref() else { return };
                 m.button_event(MouseButton::Left, false, self.last_mouse_x, self.last_mouse_y)
             }
             MouseEvent::RightPressed => {
                 self.right_down = true;
+                let Some(m) = self.mouse.as_ref() else { return };
                 m.button_event(MouseButton::Right, true, self.last_mouse_x, self.last_mouse_y)
             }
             MouseEvent::RightReleased => {
                 self.right_down = false;
+                let Some(m) = self.mouse.as_ref() else { return };
                 m.button_event(MouseButton::Right, false, self.last_mouse_x, self.last_mouse_y)
             }
             MouseEvent::MiddlePressed => {
+                let Some(m) = self.mouse.as_ref() else { return };
                 m.button_event(MouseButton::Middle, true, self.last_mouse_x, self.last_mouse_y)
             }
             MouseEvent::MiddleReleased => {
+                let Some(m) = self.mouse.as_ref() else { return };
                 m.button_event(MouseButton::Middle, false, self.last_mouse_x, self.last_mouse_y)
             }
-            MouseEvent::VerticalScroll { value } => m.scroll_vertical(value, wd, lpn),
+            MouseEvent::VerticalScroll { value } => {
+                let Some(m) = self.mouse.as_ref() else { return };
+                m.scroll_vertical(value, wd, lpn)
+            }
             MouseEvent::Scroll { x, y } => {
+                let Some(m) = self.mouse.as_ref() else { return };
                 let v = if y != 0 {
                     m.scroll_vertical(y as i16, wd, lpn)
                 } else {
@@ -216,6 +226,7 @@ impl RdpServerInputHandler for MacInputHandler {
                 let ny = (self.last_mouse_y as i32 + y).clamp(0, 65535) as u16;
                 self.last_mouse_x = nx;
                 self.last_mouse_y = ny;
+                let Some(m) = self.mouse.as_ref() else { return };
                 if self.left_down {
                     m.drag_to(MouseButton::Left, nx, ny)
                 } else {

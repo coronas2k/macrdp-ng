@@ -7,12 +7,12 @@ use tracing::{debug, warn};
 const CAPS_ADVERTISE_PDU_TYPE: u16 = 0x0012;
 
 /// Decode a client GFX PDU, with a fallback parser for CapabilitiesAdvertise.
-pub fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
+pub(crate) fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
     match decode(data) {
         Ok(pdu) => Ok(pdu),
         Err(strict_err) => {
             if !is_capabilities_advertise(data) {
-                return Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err));
+                return Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err.to_string()));
             }
             match parse_capabilities_advertise(data) {
                 Ok((sets, skipped)) => {
@@ -28,19 +28,19 @@ pub fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
                         error = %e,
                         "GFX: strict caps decode failed; lenient parse also failed"
                     );
-                    Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err))
+                    Err(ironrdp_pdu::custom_err!("GfxDecode", strict_err.to_string()))
                 }
             }
         }
     }
 }
 
-pub fn is_capabilities_advertise(data: &[u8]) -> bool {
+pub(crate) fn is_capabilities_advertise(data: &[u8]) -> bool {
     data.len() >= 8 && u16::from_le_bytes([data[0], data[1]]) == CAPS_ADVERTISE_PDU_TYPE
 }
 
 /// Walk capability sets; skip unknown versions. Returns (sets, skipped_any_unknown).
-pub fn parse_capabilities_advertise(data: &[u8]) -> Result<(Vec<CapabilitySet>, bool), String> {
+pub(crate) fn parse_capabilities_advertise(data: &[u8]) -> Result<(Vec<CapabilitySet>, bool), String> {
     if !is_capabilities_advertise(data) {
         return Err("not a CapabilitiesAdvertise PDU".into());
     }
