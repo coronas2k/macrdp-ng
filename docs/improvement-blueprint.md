@@ -4,13 +4,15 @@ Living backlog for MacRDP-Ng. Link fork issues to [x6nux/macrdp](https://github.
 
 | Upstream | Fork issue | Title | Status |
 |----------|------------|-------|--------|
-| [#1](https://github.com/x6nux/macrdp/issues/1) | TBD | Mouse scrolling too fast | Open |
-| [#2](https://github.com/x6nux/macrdp/issues/2) | TBD | macOS 26 / GFX / build meta | In progress |
-| [#3](https://github.com/x6nux/macrdp/issues/3) | TBD | Compile on macOS Tahoe | In progress |
-| [#4](https://github.com/x6nux/macrdp/issues/4) | TBD | Double-click not working | Open |
-| [#5](https://github.com/x6nux/macrdp/issues/5) | TBD | libswiftCore.dylib not found | In progress |
-| [#6](https://github.com/x6nux/macrdp/issues/6) | TBD | Black screen MS RD macOS | Open |
-| [#7](https://github.com/x6nux/macrdp/issues/7) | TBD | Mouse drag and drop | Open |
+| [#1](https://github.com/x6nux/macrdp/issues/1) | — | Mouse scrolling too fast | Open |
+| [#2](https://github.com/x6nux/macrdp/issues/2) | — | macOS 26 / GFX / build meta | In progress |
+| [#3](https://github.com/x6nux/macrdp/issues/3) | — | Compile on macOS Tahoe | In progress |
+| [#4](https://github.com/x6nux/macrdp/issues/4) | — | Double-click not working | Open |
+| [#5](https://github.com/x6nux/macrdp/issues/5) | — | libswiftCore.dylib not found | In progress |
+| [#6](https://github.com/x6nux/macrdp/issues/6) | — | Black screen MS RD macOS | Open |
+| [#7](https://github.com/x6nux/macrdp/issues/7) | — | Mouse drag and drop | Open |
+
+Fork GitHub Issues are disabled on `coronas2k/macrdp-ng`; track via upstream links and this blueprint.
 
 ## Waves (fork `feat/improvements`)
 
