@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feat/improvements]
+  pull_request:
+    branches: [main]
+
+env:
+  MACOSX_DEPLOYMENT_TARGET: "14.0"
+
+jobs:
+  rust:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+
+      - name: Build server
+        run: cargo build -p macrdp-server
+
+      - name: Build macrdp-core
+        run: cargo build -p macrdp-core
+
+      - name: Test workspace
+        run: cargo test --workspace
+
+  ui:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            macrdp-ui/src-tauri
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: macrdp-ui/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd macrdp-ui && npm ci
+
+      - name: Build frontend
+        run: cd macrdp-ui && npm run build
+
+      - name: Build Tauri Rust crate
+        run: cargo build --manifest-path macrdp-ui/src-tauri/Cargo.toml
