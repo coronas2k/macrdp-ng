@@ -11,6 +11,12 @@
 
 Optional: codesign identity `macrdp-dev` (or change Makefile / `tauri.conf.json`).
 
+## Supported toolchains
+
+- **macOS deployment target**: 14.0 (`MACOSX_DEPLOYMENT_TARGET` in [`.cargo/config.toml`](../.cargo/config.toml) and Tauri `minimumSystemVersion`).
+- **Swift / ScreenCaptureKit**: Building `macrdp-capture` compiles a small Swift bridge via the `screencapturekit` crate. Install **Xcode** or **Xcode Command Line Tools** (`xcode-select --install`). Do not set `DYLD_LIBRARY_PATH` to Swift 5.5 back-deploy libraries — that breaks on macOS 26.
+- **Rust**: stable ≥ 1.75.
+
 ## Makefile targets
 
 | Target | Purpose |
