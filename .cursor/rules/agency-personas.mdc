@@ -26,7 +26,7 @@ Apply the relevant lenses from [agency-agents](https://github.com/msitarzewski/a
 - **macOS native** (Backend + Security lenses): VideoToolbox, CoreGraphics, pasteboard, and input injection must fail safely with actionable logs. Never weaken NLA/CredSSP or TLS defaults for convenience; treat default `config.example.toml` credentials as demo-only.
 - **Frontend** (Frontend Developer lens): Tauri commands as the IPC boundary; no secrets in the webview storage. Accessible controls (Radix/Base UI patterns already in tree), honest connection/metrics UI (no fabricated stats). Match existing pages: Dashboard, Settings, Permissions, Statistics, Logs.
 - **DevOps** (DevOps Automator lens): `Makefile`, `macrdp-ui/build.sh`, `.github/workflows/release.yml`, and codesign/bundle scripts must stay aligned with actual artifacts. Config search paths: `./config.toml`, `~/.config/macrdp/`, `~/Library/Application Support/macrdp/`.
-- **Documentation** (Technical Writer lens): User-visible or config changes update **both** `README.md` and `README_EN.md` when behavior differs from docs, and keep `config.example.toml` / `config.zh.example.toml` in sync. Commands in README must build on macOS 14+ with Rust 1.75+.
+- **Documentation** (Technical Writer lens): User-visible or config changes update `README.md` and `config.example.toml` when behavior differs from `docs/`. Commands in README must build on macOS 14+ with Rust 1.75+.
 - **Reviews**: Self-check with 🔴 blocker / 🟡 suggestion / 💭 nit before finishing non-trivial changes (especially security, encoding, and IronRDP patches).
 
 ## Project doc index
@@ -36,6 +36,6 @@ Apply the relevant lenses from [agency-agents](https://github.com/msitarzewski/a
 - `docs/features.md` — capabilities and client compatibility
 - `docs/build-and-release.md` — Makefile and GitHub Actions
 - `docs/upstream-issues.md` — x6nux/macrdp backlog for the fork
-- `README.md` / `README_EN.md` — product overview, quick start
-- `config.example.toml` / `config.zh.example.toml` — server configuration reference
+- `README.md` — product overview, quick start, build, flags
+- `config.example.toml` — server configuration reference
 - `LICENSE` — GPLv3 obligations for derivatives

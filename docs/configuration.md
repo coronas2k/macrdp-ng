@@ -49,14 +49,16 @@ The Tauri app maintains its own UI config (converted to `macrdp_core::ServerConf
 | `file_transfer` | true |
 | `max_file_size_mb` | 100 |
 
-See [config.example.toml](../config.example.toml) and [config.zh.example.toml](../config.zh.example.toml) for commented templates.
+See [config.example.toml](../config.example.toml) for a commented template.
 
 ## CLI (`macrdp-server`)
 
 Defined in `crates/macrdp-server/src/config.rs` via `clap`:
 
-- `--config` — optional config path
-- `--ipc-socket` — Unix socket path for IPC control
+- `-p` / `--port` — listen port (default 3389; overrides config when changed from default)
+- `-c` / `--config` — config file path
+- `--frame-rate` — override frame rate
+- `--log-level` — override log level
 - `--perf` — collect and print performance summary on shutdown
 
 Environment:
@@ -65,13 +67,7 @@ Environment:
 
 ## Build environment (important)
 
-`.cargo/config.toml` sets:
-
-```toml
-DYLD_LIBRARY_PATH = "... swift-5.5 ... libswift_Concurrency.dylib"
-```
-
-Required for some `screencapturekit` builds on older macOS; **problematic on macOS 26** — see [upstream-issues.md](./upstream-issues.md).
+`.cargo/config.toml` sets `MACOSX_DEPLOYMENT_TARGET = "14.0"`. Do not set `DYLD_LIBRARY_PATH` for Swift back-deploy libraries — see [build-and-release.md](./build-and-release.md) and [upstream-issues.md](./upstream-issues.md).
 
 Local release signing (Makefile):
 

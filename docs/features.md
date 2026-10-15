@@ -61,8 +61,8 @@
 
 ## CLI-only extras
 
-- `--ipc-socket` (Makefile `run-cli-ipc`) for external control integrations
-- Dual log sinks without UI bridge
+- `--perf` for shutdown performance summary
+- Dual log sinks (stderr + `macrdp.log`) without UI bridge
 
 ## Client compatibility (observed / reported)
 
