@@ -15,6 +15,8 @@ use ironrdp_pdu::rdp::vc::dvc::gfx::{
 use ironrdp_pdu::gcc::{Monitor, MonitorFlags};
 use ironrdp_pdu::{decode, PduResult};
 
+use crate::gfx_caps::{decode_client_pdu, is_capabilities_advertise, parse_capabilities_advertise};
+
 type DvcMessage = ironrdp_dvc::DvcMessage;
 use tracing::{debug, info};
 
@@ -311,6 +313,16 @@ impl GfxHandler {
         let enc_w = frame.enc_width;
         let enc_h = frame.enc_height;
 
+        if enc_w > frame.width || enc_h > frame.height {
+            debug!(
+                visible_w = frame.width,
+                visible_h = frame.height,
+                enc_w,
+                enc_h,
+                "GFX frame: H.264 buffer padded; rectangles use visible size"
+            );
+        }
+
         // Detect resolution change (e.g. client resize or HiDPI mismatch) — rebuild surface
         if state.surface_created
             && (state.width != frame.width || state.height != frame.height)
@@ -592,11 +604,9 @@ impl DvcProcessor for GfxHandler {
         let raw_data = unwrap_zgfx(payload);
         let data = raw_data.as_deref().unwrap_or(payload);
 
-        let client_pdu: ClientPdu = match decode(data) {
+        let client_pdu: ClientPdu = match decode_client_pdu(data) {
             Ok(pdu) => pdu,
             Err(e) => {
-                // Unknown PDU type (e.g., QoE FrameAcknowledge 0x16, CacheImportOffer 0x10)
-                // Log and ignore rather than crashing the connection
                 debug!(
                     payload_len = data.len(),
                     first_bytes = ?&data[..data.len().min(8)],
@@ -608,7 +618,7 @@ impl DvcProcessor for GfxHandler {
 
         match client_pdu {
             ClientPdu::CapabilitiesAdvertise(caps) => {
-                let cap_sets = &caps.0;
+                let cap_sets = caps.0;
                 info!("GFX client capabilities: {} sets", cap_sets.len());
 
                 let mut state = self.state.lock().unwrap();
@@ -619,9 +629,14 @@ impl DvcProcessor for GfxHandler {
                     return Ok(Vec::new());
                 }
 
+                let skipped_unknown = is_capabilities_advertise(data)
+                    && parse_capabilities_advertise(data)
+                        .map(|(_, s)| s)
+                        .unwrap_or(false);
+
                 let mut best_cap = None;
 
-                for cap in cap_sets {
+                for cap in &cap_sets {
                     match cap {
                         CapabilitySet::V10_7 { flags } if !flags.contains(CapabilitiesV107Flags::AVC_DISABLED) => {
                             state.avc420_supported = true;
@@ -676,6 +691,15 @@ impl DvcProcessor for GfxHandler {
                     }
                 }
 
+                if skipped_unknown && !state.avc420_supported {
+                    state.avc420_supported = true;
+                    state.avc444_supported = true;
+                    best_cap = Some(CapabilitySet::V10_7 {
+                        flags: CapabilitiesV107Flags::empty(),
+                    });
+                    info!("GFX caps: unknown versions skipped; falling back to V10_7 AVC");
+                }
+
                 let confirmed = best_cap.unwrap_or(CapabilitySet::V8 {
                     flags: ironrdp_pdu::rdp::vc::dvc::gfx::CapabilitiesV8Flags::empty(),
                 });
@@ -684,6 +708,8 @@ impl DvcProcessor for GfxHandler {
                     avc420 = state.avc420_supported,
                     avc444_client = state.avc444_supported,
                     avc444_enabled = state.avc444_enabled,
+                    confirmed = ?confirmed,
+                    skipped_unknown,
                     "GFX capabilities negotiated"
                 );
 

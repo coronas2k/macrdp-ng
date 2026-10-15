@@ -12,6 +12,7 @@ mod capabilities;
 mod clipboard;
 mod display;
 mod encoder;
+mod gfx_caps;
 pub mod gfx;
 mod handler;
 #[cfg(feature = "helper")]
