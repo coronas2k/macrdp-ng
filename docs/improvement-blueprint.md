@@ -2,23 +2,28 @@
 
 Living backlog for MacRDP-Ng. Link fork issues to [x6nux/macrdp](https://github.com/x6nux/macrdp) upstream.
 
-| Upstream | Fork issue | Title | Status |
-|----------|------------|-------|--------|
-| [#1](https://github.com/x6nux/macrdp/issues/1) | — | Mouse scrolling too fast | Open |
-| [#2](https://github.com/x6nux/macrdp/issues/2) | — | macOS 26 / GFX / build meta | In progress |
-| [#3](https://github.com/x6nux/macrdp/issues/3) | — | Compile on macOS Tahoe | In progress |
-| [#4](https://github.com/x6nux/macrdp/issues/4) | — | Double-click not working | Open |
-| [#5](https://github.com/x6nux/macrdp/issues/5) | — | libswiftCore.dylib not found | In progress |
-| [#6](https://github.com/x6nux/macrdp/issues/6) | — | Black screen MS RD macOS | Open |
-| [#7](https://github.com/x6nux/macrdp/issues/7) | — | Mouse drag and drop | Open |
+| Upstream | Title | Status (v0.2.0) |
+|----------|-------|-----------------|
+| [#1](https://github.com/x6nux/macrdp/issues/1) | Mouse scrolling too fast | Mitigated — wheel delta scaling |
+| [#2](https://github.com/x6nux/macrdp/issues/2) | macOS 26 / GFX / build meta | Partial — build/tray/caps; frame glitch open |
+| [#3](https://github.com/x6nux/macrdp/issues/3) | Compile on macOS Tahoe | Partial — toolchain docs + deployment target |
+| [#4](https://github.com/x6nux/macrdp/issues/4) | Double-click not working | Mitigated — click-count synthesis |
+| [#5](https://github.com/x6nux/macrdp/issues/5) | libswiftCore.dylib not found | Partial — CI binaries + no DYLD hack |
+| [#6](https://github.com/x6nux/macrdp/issues/6) | Black screen MS RD macOS | Partial — `pointer_invert_y`; video TBD |
+| [#7](https://github.com/x6nux/macrdp/issues/7) | Mouse drag and drop | Mitigated — drag events while held |
 
 Fork GitHub Issues are disabled on `coronas2k/macrdp-ng`; track via upstream links and this blueprint.
 
-## Waves (fork `feat/improvements`)
+## Shipped in v0.2.0 (`feat/improvements`)
 
-1. **Foundation** — docs, CI, macOS 14+ toolchain, Tauri min OS, tray/LSUIElement
-2. **Protocol** — lenient GFX caps, H.264/GFX rectangle alignment
-3. **Input** — scroll, drag, double-click, pointer mapping
-4. **Release** — README sync, `make check`, tag `v0.2.0`
+- `docs/` engineering documentation
+- PR CI (`.github/workflows/ci.yml`)
+- macOS 14 deployment target; removed `DYLD_LIBRARY_PATH`; Tauri min OS; Regular activation policy
+- Lenient GFX `CapabilitiesAdvertise` + V10_7 fallback
+- Input: scroll scaling, `MouseEvent::Scroll`, drag, double-click, coord mapper tests, optional `pointer_invert_y`
 
-Update fork issue numbers in the table after `gh issue create`.
+## Remaining
+
+- H.264/GFX corruption on some clients after sustained session (#2E)
+- MS RD macOS black screen if not pointer-only (#6)
+- Enable GitHub Issues on fork or use external tracker

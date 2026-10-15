@@ -129,3 +129,16 @@ No drag; long press ineffective.
 5. **CI** — PR checks + signed/notarized release policy
 
 Link fork issues to upstream numbers when opening `coronas2k/macrdp-ng` tickets for traceability.
+
+## Fixed or mitigated in MacRDP-Ng v0.2.0
+
+| Upstream | Fork change |
+|----------|-------------|
+| #1 | `scroll_wheel_delta` / 120 scaling in `macrdp-input` |
+| #2A–C | `.cargo/config.toml`, Tauri `minimumSystemVersion`, `LSUIElement` removed |
+| #2D | `crates/ironrdp-server-gfx/src/gfx_caps.rs` |
+| #4 | Double-click via `MOUSE_EVENT_CLICK_STATE` in handler |
+| #7 | `LeftMouseDragged` while button held |
+| #6 (pointer) | Optional `pointer_invert_y` in config |
+
+Still open: #2E frame misalignment, #6 video black screen, full #3/#5 toolchain edge cases on exotic Intel setups.

@@ -86,6 +86,14 @@ log_level = "info"          # trace / debug / info / warn / error
 
 ---
 
+## 文档
+
+工程文档见 [`docs/`](docs/README.md)（架构、构建、配置、上游 issue 与 [改进蓝图](docs/improvement-blueprint.md)）。
+
+**构建说明（macOS 14+）：** 需安装 Xcode 或命令行工具；勿设置 Swift 5.5 的 `DYLD_LIBRARY_PATH`。详见 [docs/build-and-release.md](docs/build-and-release.md)。
+
+---
+
 ## 项目结构
 
 ```

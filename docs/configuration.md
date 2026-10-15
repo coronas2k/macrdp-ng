@@ -29,6 +29,9 @@ The Tauri app maintains its own UI config (converted to `macrdp_core::ServerConf
 | `idle_timeout_secs` | u64 | 1800 | Session idle disconnect |
 | `log_level` | string? | info | trace … error |
 | `cert_path` / `key_path` | path? | auto-generated | TLS PEM files |
+| `pointer_invert_y` | bool? | false | Flip RDP Y when mapping to CGEvent |
+| `scroll_wheel_delta` | u32? | 120 | RDP wheel units per notch |
+| `scroll_lines_per_notch` | u32? | 1 | macOS lines per notch after scaling |
 
 ### `[audio]`
 

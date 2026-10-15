@@ -86,6 +86,14 @@ Config search order:
 
 ---
 
+## Documentation
+
+Engineering docs live in [`docs/`](docs/README.md): architecture, build/CI, configuration, upstream issue tracking, and the [improvement blueprint](docs/improvement-blueprint.md).
+
+**Build notes (macOS 14+):** use Xcode or Command Line Tools; do not set `DYLD_LIBRARY_PATH` to Swift 5.5 libraries. See [docs/build-and-release.md](docs/build-and-release.md).
+
+---
+
 ## Project Structure
 
 ```
