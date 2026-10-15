@@ -618,7 +618,25 @@ impl DvcProcessor for GfxHandler {
 
         match client_pdu {
             ClientPdu::CapabilitiesAdvertise(caps) => {
-                let cap_sets = caps.0;
+                let mut cap_sets = caps.0;
+                let mut skipped_unknown = false;
+
+                if is_capabilities_advertise(data) {
+                    match parse_capabilities_advertise(data) {
+                        Ok((parsed, skipped)) => {
+                            skipped_unknown = skipped;
+                            if cap_sets.is_empty() && !parsed.is_empty() {
+                                info!(
+                                    sets = parsed.len(),
+                                    "GFX caps: lenient parse recovered capability sets"
+                                );
+                                cap_sets = parsed;
+                            }
+                        }
+                        Err(e) => debug!(error = %e, "GFX caps lenient parse failed"),
+                    }
+                }
+
                 info!("GFX client capabilities: {} sets", cap_sets.len());
 
                 let mut state = self.state.lock().unwrap();
@@ -628,11 +646,6 @@ impl DvcProcessor for GfxHandler {
                     info!("GFX caps already confirmed, ignoring duplicate CapabilitiesAdvertise");
                     return Ok(Vec::new());
                 }
-
-                let skipped_unknown = is_capabilities_advertise(data)
-                    && parse_capabilities_advertise(data)
-                        .map(|(_, s)| s)
-                        .unwrap_or(false);
 
                 let mut best_cap = None;
 
@@ -691,13 +704,15 @@ impl DvcProcessor for GfxHandler {
                     }
                 }
 
-                if skipped_unknown && !state.avc420_supported {
+                if !state.avc420_supported
+                    && (skipped_unknown || (cap_sets.is_empty() && data.len() > 8))
+                {
                     state.avc420_supported = true;
                     state.avc444_supported = true;
                     best_cap = Some(CapabilitySet::V10_7 {
                         flags: CapabilitiesV107Flags::empty(),
                     });
-                    info!("GFX caps: unknown versions skipped; falling back to V10_7 AVC");
+                    info!("GFX caps: assuming V10_7 AVC (empty or partially unknown advertise)");
                 }
 
                 let confirmed = best_cap.unwrap_or(CapabilitySet::V8 {

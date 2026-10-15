@@ -1063,6 +1063,11 @@ impl RdpServer {
                     return Ok(true);
                 }
 
+                rdp::headers::ShareDataPdu::SuppressOutput(_) => {
+                    // Client pauses/resumes screen updates (common with mstsc); safe to ignore.
+                    debug!("Client SuppressOutput");
+                }
+
                 unexpected => {
                     warn!(?unexpected, "Unexpected share data pdu");
                 }

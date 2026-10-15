@@ -9,6 +9,17 @@ const CAPS_ADVERTISE_PDU_TYPE: u16 = 0x0012;
 /// Decode a client GFX PDU, with a fallback parser for CapabilitiesAdvertise.
 pub(crate) fn decode_client_pdu(data: &[u8]) -> PduResult<ClientPdu> {
     match decode(data) {
+        Ok(ClientPdu::CapabilitiesAdvertise(caps)) if caps.0.is_empty() => {
+            if is_capabilities_advertise(data) {
+                match parse_capabilities_advertise(data) {
+                    Ok((sets, _)) if !sets.is_empty() => {
+                        return Ok(ClientPdu::CapabilitiesAdvertise(CapabilitiesAdvertisePdu(sets)));
+                    }
+                    _ => {}
+                }
+            }
+            Ok(ClientPdu::CapabilitiesAdvertise(caps))
+        }
         Ok(pdu) => Ok(pdu),
         Err(strict_err) => {
             if !is_capabilities_advertise(data) {
@@ -55,16 +66,25 @@ pub(crate) fn parse_capabilities_advertise(data: &[u8]) -> Result<(Vec<Capabilit
             warn!(i, count, offset, len = data.len(), "GFX caps: truncated capability set header");
             break;
         }
-        let data_len = u32::from_le_bytes(
+        let declared_len = u32::from_le_bytes(
             data[offset + 4..offset + 8]
                 .try_into()
                 .map_err(|_| "bad data_len")?,
         ) as usize;
-        let total = 8 + data_len;
-        if offset + total > data.len() {
-            warn!(i, total, offset, len = data.len(), "GFX caps: truncated capability set body");
+        // [MS-RDPEGFX] length is the full capability set size (version + pad + length + data).
+        // Some encoders use body-only length after the 8-byte header; accept both.
+        let total = capability_set_total_size(declared_len, offset, data.len());
+        if total.is_none() {
+            warn!(
+                i,
+                declared_len,
+                offset,
+                len = data.len(),
+                "GFX caps: truncated capability set body"
+            );
             break;
         }
+        let total = total.unwrap();
         let cap_bytes = &data[offset..offset + total];
         match decode(cap_bytes) {
             Ok(cap) => sets.push(cap),
@@ -78,6 +98,17 @@ pub(crate) fn parse_capabilities_advertise(data: &[u8]) -> Result<(Vec<Capabilit
     }
 
     Ok((sets, skipped))
+}
+
+/// Resolve how many bytes belong to one capability set starting at `offset`.
+fn capability_set_total_size(declared_len: usize, offset: usize, buf_len: usize) -> Option<usize> {
+    if declared_len >= 8 && offset + declared_len <= buf_len {
+        return Some(declared_len);
+    }
+    if declared_len > 0 && offset + 8 + declared_len <= buf_len {
+        return Some(8 + declared_len);
+    }
+    None
 }
 
 #[cfg(test)]
@@ -98,11 +129,25 @@ mod tests {
     }
 
     #[test]
-    fn lenient_skips_unknown_version() {
+    fn lenient_skips_unknown_version_body_length() {
         let mut buf = vec![0x12, 0x00, 0x00, 0x00, 1, 0, 0, 0];
         buf.extend_from_slice(&0x9999u16.to_le_bytes());
         buf.extend_from_slice(&0u16.to_le_bytes());
         buf.extend_from_slice(&4u32.to_le_bytes());
+        buf.extend_from_slice(&[0u8, 0, 0, 0]);
+
+        let (sets, skipped) = parse_capabilities_advertise(&buf).expect("parse");
+        assert!(skipped);
+        assert!(sets.is_empty());
+    }
+
+    #[test]
+    fn lenient_skips_unknown_version_ms_total_length() {
+        let mut buf = vec![0x12, 0x00, 0x00, 0x00, 1, 0, 0, 0];
+        buf.extend_from_slice(&0x9999u16.to_le_bytes());
+        buf.extend_from_slice(&0u16.to_le_bytes());
+        let total_set = 12u32; // 8-byte header + 4-byte body
+        buf.extend_from_slice(&total_set.to_le_bytes());
         buf.extend_from_slice(&[0u8, 0, 0, 0]);
 
         let (sets, skipped) = parse_capabilities_advertise(&buf).expect("parse");
