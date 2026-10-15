@@ -13,7 +13,7 @@ use ironrdp_pdu::rdp::vc::dvc::gfx::{
     ServerPdu, StartFramePdu, Timestamp, WireToSurface1Pdu,
 };
 use ironrdp_pdu::gcc::{Monitor, MonitorFlags};
-use ironrdp_pdu::{decode, PduResult};
+use ironrdp_pdu::PduResult;
 
 use crate::gfx_caps::{decode_client_pdu, is_capabilities_advertise, parse_capabilities_advertise};
 
